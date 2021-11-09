@@ -1,15 +1,31 @@
 ### Project 2
-This is a template, to be filled out by each group and placed in their git repo titled README.md
-Requirements:
-- Create a Spark Application that processes data (huge data) (you can either get the dataset from a reliable source or get it from an API).
-- Your project 2 pitch should involve some analysis of the data.  This can be the central feature.  Your final application should work, to some extent and historical data.	
-- Produce a one or more .jar files for your analysis.  Multiple smaller jar files are preferred.
+A Spark application to process the Iowa Liquor Sales Dataset with 19,666,763 unique values.
+
+November 9 2021
+
+Team Members:
+- Michael Hayes @mhh916
+- Theodore Hartin @theehartin
+- Nathanael Mottonen @mottonen12n
+- Nathaniel(Nate) Shenk @natshenk
+- Zachery Brinner @ZacheryZan
+
+### Analysis questions for Project
+1. Is there a change in the amount(Vol and/or total sale Price) of liquor sales depending on the Year?  Month? Around Holidays?
+2. Which county is responsible for the most liquor sold? Price and/or Volume. Which City?
+3. Which Zip County buys the most expensive liquor (Price/Vol)? County? City?
+4. Which category of liquor is the most expensive? Inexpensive? Most popular category?
+5. Which vendor made the most on liquor sales? What was their best-selling category?
+6. Which liquor (Item Description) is the most expensive? Cheapest? Most popular by Volume? Most popular by total sales?
+7. Calculate the average profit margin for each liquor (Item Description)
+8. Is there a change in the amount (Vol and/or total sale Price) of liquor sales Due to covid? Year 2012~2019 pre-covid 2020 post-covid split by month.
+9. Which day of the week contains the most alcohol purchases?
 
 ### Presentations
-- Bring a simple slide deck providing an overview of your results.  You should present your results, a high level overview of the process used to achieve those results, and any assumptions and simplifications you made on the way to those results.
-- I may ask you to run an analysis on the day of the presentation, so be prepared to do so.
-- We'll have 20 minutes per group, so make sure your presentation can be covered in that time, focusing on the parts of your analysis you find most interesting.
-- Include a link to your github repository at the end of your slides.
+- Microsoft PowerPoint
+    - Visual Graphs will be used for each analytical question result.
+    - Describe where the data was derived from.
+
 
 ### Technologies
 - Apache Spark
@@ -18,6 +34,3 @@ Requirements:
 - HDFS and/or S3
 - Scala
 - Git + GitHub
-
-### Due Date
-- Presentations will take place on Friday, 19-Nov-2021.
