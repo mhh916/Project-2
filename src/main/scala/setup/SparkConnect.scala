@@ -17,7 +17,9 @@ class SparkConnect(){
       .getOrCreate()
     
       spark.sparkContext.setLogLevel("ERROR")
-      df = spark.read.format("csv").option("header", "true").load("file:///home/maria_dev/Project2/Iowa_Liquor_Sales.csv")
+      //df = spark.read.format("csv").option("header", "true").load("file:///home/maria_dev/Project2/Iowa_Liquor_Sales.csv")
+      df = spark.read.format("csv").option("header", "true").load("hdfs://sandbox-hdp.hortonworks.com:8020/user/maria_dev/Project2/Iowa_Liquor_Sales.csv")
+
     } catch {
       case e: Throwable => println(e)
     }
