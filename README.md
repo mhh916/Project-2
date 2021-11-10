@@ -1,5 +1,6 @@
 ### Project 2
 A Spark application to process the Iowa Liquor Sales Dataset with 19,666,763 unique values.
+- Data Source: https://www.kaggle.com/sibmike/iowaliquorsales2020
 
 November 9 2021
 
