@@ -27,7 +27,19 @@ class Analyze   (){
     }
 
     def q6(): Unit = {
-        
+        sc.getDataFrame.createOrReplaceTempView("liquor")
+
+        // Show most expensive liquors per liter
+        println("Most expensive liquors by volume:")
+        val mostExpensiveDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`Sale (Dollars)` / `Volume Sold (Liters)`) AS DECIMAL(10,2)) AS `Price/Liter (Dollars)`" +
+          "FROM liquor GROUP BY `Item Description` ORDER BY `Price/Liter (Dollars)` DESC LIMIT 20")
+        mostExpensiveDF.show(false)
+
+        // Show least expensive liquors per liter
+        println("Least expensive liquors by volume:")
+        val leastExpensiveDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`Sale (Dollars)` / `Volume Sold (Liters)`) AS DECIMAL(10,2)) AS `Price/Liter (Dollars)`" +
+          "FROM liquor GROUP BY `Item Description` HAVING `Price/Liter (Dollars)` > 0 ORDER BY `Price/Liter (Dollars)` ASC LIMIT 10")
+        leastExpensiveDF.show(false)
     }
 
     def q7(): Unit = {
