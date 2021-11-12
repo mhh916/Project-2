@@ -33,6 +33,17 @@ class Analyze   (){
         val vendor1 = q5.collect()(0)(0)
         val vendor2 = q5.collect()(1)(0)
         val vendor3 = q5.collect()(2)(0)
+
+        // Runs queries with provided vendor names.
+        println("Getting "+ vendor1 + " Most Popular Category, Limit 3")
+        val q5a = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor1 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        q5a.show(false)
+        println("Getting "+ vendor2 + " Most Popular Category, Limit 3")
+        val q5b = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor2 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        q5b.show(false)
+        println("Getting "+ vendor3 + " Most Popular Category, Limit 3")
+        val q5c = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor3 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        q5c.show(false)
     }
 
     def q6(): Unit = {
