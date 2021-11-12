@@ -6,11 +6,12 @@ class Analyze   (){
     val sc = new SparkConnect()
 
     def q1(): Unit = {
-
+      
     }
 
     def q2(): Unit = {
-        
+      val func = new CountyAgg 
+      func.groupByCounty()
     }
 
     def q3(): Unit = {
