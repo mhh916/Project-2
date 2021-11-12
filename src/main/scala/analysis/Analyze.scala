@@ -48,7 +48,34 @@ class Analyze   (){
     }
 
     def q6(): Unit = {
-        
+        sc.getDataFrame.createOrReplaceTempView("liquor")
+
+        // Part 1/3
+        // Show most expensive liquors per liter
+        println("Most expensive liquors by volume:")
+        val mostExpensiveDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`Sale (Dollars)` / `Volume Sold (Liters)`) AS DECIMAL(10,2))" +
+            "AS `Price/Liter (Dollars)` FROM liquor GROUP BY `Item Description` ORDER BY `Price/Liter (Dollars)` DESC LIMIT 20")
+        mostExpensiveDF.show(false)
+
+        // Show least expensive liquors per liter
+        println("Least expensive liquors by volume:")
+        val leastExpensiveDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`Sale (Dollars)` / `Volume Sold (Liters)`) AS DECIMAL(10,2))" +
+            "AS `Price/Liter (Dollars)` FROM liquor GROUP BY `Item Description` HAVING `Price/Liter (Dollars)` > 0 ORDER BY `Price/Liter (Dollars)` ASC LIMIT 10")
+        leastExpensiveDF.show(false)
+
+        // Part 2/3
+        // Show liquors with highest volume sold
+        println("Most popular liquor by volume sold:")
+        val mostPopularVolumeDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(SUM(`Volume Sold (Liters)`) / 1000000 AS DECIMAL(5,2)) AS `Liters Sold (mil)`" +
+          "FROM liquor GROUP BY `Item Description` ORDER BY `Liters Sold (mil)` DESC LIMIT 10")
+        mostPopularVolumeDF.show(false)
+
+        // Part 3/3
+        // Show liquors sold by total dollars spent
+        println("Most popular liquor by dollars spent:")
+        val mostPopularDollarsDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(SUM(`Sale (Dollars)`) / 1000000 AS DECIMAL(5,2)) AS `Dollars (mil)`" +
+          "FROM liquor GROUP BY `Item Description` ORDER BY `Dollars (mil)` DESC LIMIT 10")
+        mostPopularDollarsDF.show(false)
     }
 
     def q7(): Unit = {
