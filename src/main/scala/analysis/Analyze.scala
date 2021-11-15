@@ -65,7 +65,8 @@ class Analyze   (){
     }
 
     def q3(): Unit = {
-        
+      val func = new expenseByLocal
+      func.expenseByLocal() 
     }
 
     def q4(): Unit = {
