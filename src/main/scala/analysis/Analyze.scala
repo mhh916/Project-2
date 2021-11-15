@@ -7,7 +7,7 @@ class Analyze   (){
     val sc = new SparkConnect()
 
     def q1(): Unit = {
-      
+     
     }
 
     def q2(): Unit = {
@@ -16,7 +16,8 @@ class Analyze   (){
     }
 
     def q3(): Unit = {
-        
+      val func = new expenseByLocal
+      func.expenseByLocal() 
     }
 
     def q4(): Unit = {
