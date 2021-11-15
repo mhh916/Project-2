@@ -12,7 +12,7 @@ class analysisP213(spark:SparkConnect) {
     println("Loading dataFrame...")
     val df1 = spark.getDataFrame()
     val df2 = df1.withColumn("PPLiter (L/Per Dollar)", df1("Sale (Dollars)") / df1("Volume Sold (Liters)"))
-    val df3 = df2.groupBy("Category").agg(avg("PPLiter (L/Per Dollaar)").as("AVG_Price"))
+    val df3 = df2.groupBy("Category").agg(avg("PPLiter (L/Per Dollar)").as("AVG_Price"))
     println("Most Expensive Liquor Category")
     df3.orderBy(col("AVG_PPLiter").desc).show(5)
     println("Least Expensive Liquor Category")
