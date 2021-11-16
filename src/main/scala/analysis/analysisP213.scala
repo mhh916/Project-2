@@ -2,7 +2,7 @@ package analysis
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import setup.SparkConnect
-
+import org.apache.spark.sql.types.DecimalType
 
 class analysisP213(spark:SparkConnect) {
   
@@ -14,12 +14,15 @@ class analysisP213(spark:SparkConnect) {
     val df2 = df1.withColumn("PPLiter (L/Per Dollar)", df1("Sale (Dollars)") / df1("Volume Sold (Liters)"))
     val df3 = df2.groupBy("Category Name").agg(avg("PPLiter (L/Per Dollar)").as("AVG_Price"))
     println("Most Expensive Liquor (Category Name)")
-    df3.orderBy(col("AVG_Price").desc).show(5)
+    val df4 = df3.orderBy(col("AVG_Price").desc)
+    val df5 = df3.orderBy(col("AVG_Price").asc)
+    df4.withColumn("AVG_Price", df4("AVG_Price").cast(DecimalType(6,2))).show(5,false)
     println("Least Expensive Liquor Category")
-    df3.orderBy(col("AVG_Price").asc).show(5)
-    val df4 = df1.groupBy("Category Name").agg(sum("Volume Sold (Liters)").as("SUM_Volume(L)"))
+    df5.withColumn("AVG_Price", df4("AVG_Price").cast(DecimalType(6,2))).show(5,false)
+    val df6 = df1.groupBy("Category Name").agg(sum("Volume Sold (Liters)").as("SUM_Volume(L)"))
     println("Most Popular Liquor by Volume(Liters)")
-    df4.orderBy(col("SUM_Volume(L)").desc).show(5)
+    val df7 = df6.orderBy(col("SUM_Volume(L)").desc)
+    df7.withColumn("SUM_Volume(L)", df7("SUM_Volume(L)").cast(DecimalType(25,2))).show(5,false)
     }
   
 }
