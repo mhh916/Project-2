@@ -145,7 +145,35 @@ class Analyze   (){
     }
 
     def q8(): Unit = {
-        
+        val spark = sc.getSparkSession()
+        import spark.implicits._
+        try{
+            val q1DF = spark.read.option("header", true).option("inferSchema", true).csv("/user/maria_dev/Project2/Question1Part1/part*.csv")
+            val preCovidDF = q1DF.filter("Year <= 2019 OR Year == 2020 AND Month < 3")
+            val postCovidDF = q1DF.filter("Year = 2020 AND Month >= 3")
+            preCovidDF.coalesce(1).write.option("header", "true").mode(SaveMode.Overwrite).csv("/user/maria_dev/Project2/Question8PreCovid")
+            preCovidDF.show(100)
+            postCovidDF.coalesce(1).write.option("header", "true").mode(SaveMode.Overwrite).csv("/user/maria_dev/Project2/Question8PostCovid")
+            postCovidDF.show()
+            println("Result obtained using result file from question1, part1.")
+        }
+        catch{
+            case e: Throwable => {
+                val spark = sc.getSparkSession()
+                val inputDF = sc.getDataFrame()
+                //Split Date into separate columns for year, month, and day. Also cast Sales and Volume to Double.
+                val modifiedDF = inputDF.withColumn("Year", year(to_date(col("Date"),"MM/dd/yyyy"))).withColumn("Month", month(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Day", dayofmonth(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Sales", col("Sale (Dollars)").cast(DoubleType)).withColumn("Volume", col("Volume Sold (Gallons)").cast(DoubleType))
+                //Result for question 1 part 1, group by year+month, sum sales and volume. Sales in millions of dollars, volume in barrels (53gallons/barrel)
+                val q1DF = modifiedDF.groupBy($"Year", $"Month").agg(sum($"Sales")/1000000 as "Total Sales (mil)", sum($"Volume")/53 as "Total Volume (Barrels)").sort(col("Year"), col("Month")).withColumn("Total Sales (mil)", format_number($"Total Sales (mil)", 2)).withColumn("Total Volume (Barrels)", regexp_replace(format_number($"Total Volume (Barrels)", 2), ",", ""))
+                val preCovidDF = q1DF.filter("Year <= 2019 OR Year == 2020 AND Month < 3")
+                val postCovidDF = q1DF.filter("Year = 2020 AND Month >= 3")
+                preCovidDF.coalesce(1).write.option("header", "true").mode(SaveMode.Overwrite).csv("/user/maria_dev/Project2/Question8PreCovid")
+                preCovidDF.show(100)
+                postCovidDF.coalesce(1).write.option("header", "true").mode(SaveMode.Overwrite).csv("/user/maria_dev/Project2/Question8PostCovid")
+                postCovidDF.show()
+                println("Result file from question1, part1 not found, result created from scratch.")
+            }
+        }
     }
 
     def q9(): Unit = {
