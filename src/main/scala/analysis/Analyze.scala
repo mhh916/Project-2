@@ -70,7 +70,8 @@ class Analyze   (){
     }
 
     def q4(): Unit = {
-        
+        val p213 = new analysisP213(sc)
+        p213.q4()
     }
 
     def q5(): Unit = {
