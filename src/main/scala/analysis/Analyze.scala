@@ -2,6 +2,8 @@ package analysis
 
 import setup.SparkConnect
 import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.DecimalType
 
 class Analyze   (){
     val sc = new SparkConnect()
@@ -68,7 +70,16 @@ class Analyze   (){
     }
 
     def q8(): Unit = {
-        
+        println("Preparing DF VIEW")
+        val df1 = sc.getDataFrame()
+        val df2 = df1.withColumn("Day of Week", dayofweek(to_date(col("Date"),"MM/dd/yyyy")))
+        val df3 = df2.groupBy("Day of Week").agg(sum("Volume Sold (liters)").as("total vol(L) sold"))
+        val df4 = df3.orderBy(col("total vol(L) sold").desc)
+        //accumulating volume of liquor sold on each day
+        println("Printing...")
+        println("Liquor volume sold on days of week")
+        df4.withColumn("total vol(L) sold", df4("total vol(L) sold").cast(DecimalType(20,2))).show(5,false)
+
     }
 
     def q9(): Unit = {
