@@ -81,7 +81,7 @@ class Analyze   (){
         
         //Which vendor had the most revenue liquor sales? What was their best-selling category?
         println("Getting vendor with most Revenue, Limit 3")
-        val q5 = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Vendor Name`) AS Vendor, ROUND(SUM(CAST(`State Bottle Cost` AS Double)) OVER(PARTITION BY UPPER(`Vendor Name`))/1000000,2) AS `Revenue(mil)`  FROM liquor ORDER BY `Revenue(mil)` DESC LIMIT 3")
+        val q5 = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`VendorName`) AS Vendor, ROUND(SUM(CAST(`StateBottleCost` AS Double)) OVER(PARTITION BY UPPER(`VendorName`))/1000000,2) AS `Revenue(mil)`  FROM liquor ORDER BY `Revenue(mil)` DESC LIMIT 3")
         q5.show(false)
         // Grabs the 3 vendor names from dataframe
         val vendor1 = q5.collect()(0)(0)
@@ -90,13 +90,13 @@ class Analyze   (){
 
         // Runs queries with provided vendor names.
         println("Getting "+ vendor1 + " Most Popular Category, Limit 3")
-        val q5a = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor1 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        val q5a = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`CategoryName`) AS Category, ROUND((SUM(`BottlesSold`) OVER(PARTITION BY  UPPER(`CategoryName`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`VendorName`) = " + "'" + vendor1 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
         q5a.show(false)
         println("Getting "+ vendor2 + " Most Popular Category, Limit 3")
-        val q5b = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor2 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        val q5b = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`CategoryName`) AS Category, ROUND((SUM(`BottlesSold`) OVER(PARTITION BY  UPPER(`CategoryName`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`VendorName`) = " + "'" + vendor2 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
         q5b.show(false)
         println("Getting "+ vendor3 + " Most Popular Category, Limit 3")
-        val q5c = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor3 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        val q5c = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`CategoryName`) AS Category, ROUND((SUM(`BottlesSold`) OVER(PARTITION BY  UPPER(`CategoryName`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`VendorName`) = " + "'" + vendor3 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
         q5c.show(false)
     }
 
