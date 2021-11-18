@@ -188,6 +188,6 @@ class Analyze   (){
         //accumulating volume of liquor sold on each day
         println("Printing...")
         println("Liquor volume sold on days of week")
-        df4.withColumn("total vol(L) sold", df4("total vol(L) sold").cast(DecimalType(20,2))).show(7,false)    
+        df4.withColumn("Total Volume (Barrels)", (df4("total vol(L) sold")/240.9428).cast(DecimalType(20,2))).select("Day of Week","Total Volume (Barrels)").show(7,false)    
     }
 }
