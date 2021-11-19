@@ -17,7 +17,7 @@ class Analyze   (){
         import spark.implicits._
         val inputDF = sc.getDataFrame()
         //Split Date into separate columns for year, month, and day. Also cast Sales and Volume to Double.
-        val modifiedDF = inputDF.withColumn("Year", year(to_date(col("Date"),"MM/dd/yyyy"))).withColumn("Month", month(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Day", dayofmonth(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Sales", col("Sale (Dollars)").cast(DoubleType)).withColumn("Volume", col("Volume Sold (Gallons)").cast(DoubleType))
+        val modifiedDF = inputDF.withColumn("Year", year(to_date(col("Date"),"MM/dd/yyyy"))).withColumn("Month", month(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Day", dayofmonth(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Sales", col("Sale").cast(DoubleType)).withColumn("Volume", col("VolumeSoldG").cast(DoubleType))
         //Result for part 1, group by year+month, sum sales and volume. Sales in millions of dollars, volume in barrels (53gallons/barrel)
         val result1DF = modifiedDF.groupBy($"Year", $"Month").agg(sum($"Sales")/1000000 as "Total Sales (mil)", sum($"Volume")/53 as "Total Volume (Barrels)").sort(col("Year"), col("Month")).withColumn("Total Sales (mil)", format_number($"Total Sales (mil)", 2)).withColumn("Total Volume (Barrels)", regexp_replace(format_number($"Total Volume (Barrels)", 2), ",", ""))
         //Part 2
@@ -81,7 +81,7 @@ class Analyze   (){
         
         //Which vendor had the most revenue liquor sales? What was their best-selling category?
         println("Getting vendor with most Revenue, Limit 3")
-        val q5 = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Vendor Name`) AS Vendor, ROUND(SUM(CAST(`State Bottle Cost` AS Double)) OVER(PARTITION BY UPPER(`Vendor Name`))/1000000,2) AS `Revenue(mil)`  FROM liquor ORDER BY `Revenue(mil)` DESC LIMIT 3")
+        val q5 = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`VendorName`) AS Vendor, ROUND(SUM(CAST(`StateBottleCost` AS Double)) OVER(PARTITION BY UPPER(`VendorName`))/1000000,2) AS `Revenue(mil)`  FROM liquor ORDER BY `Revenue(mil)` DESC LIMIT 3")
         q5.show(false)
         // Grabs the 3 vendor names from dataframe
         val vendor1 = q5.collect()(0)(0)
@@ -90,13 +90,13 @@ class Analyze   (){
 
         // Runs queries with provided vendor names.
         println("Getting "+ vendor1 + " Most Popular Category, Limit 3")
-        val q5a = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor1 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        val q5a = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`CategoryName`) AS Category, ROUND((SUM(`BottlesSold`) OVER(PARTITION BY  UPPER(`CategoryName`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`VendorName`) = " + "'" + vendor1 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
         q5a.show(false)
         println("Getting "+ vendor2 + " Most Popular Category, Limit 3")
-        val q5b = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor2 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        val q5b = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`CategoryName`) AS Category, ROUND((SUM(`BottlesSold`) OVER(PARTITION BY  UPPER(`CategoryName`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`VendorName`) = " + "'" + vendor2 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
         q5b.show(false)
         println("Getting "+ vendor3 + " Most Popular Category, Limit 3")
-        val q5c = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`Category Name`) AS Category, ROUND((SUM(`Bottles Sold`) OVER(PARTITION BY  UPPER(`Category Name`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`Vendor Name`) = " + "'" + vendor3 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
+        val q5c = sc.getSparkSession().sql("SELECT DISTINCT UPPER(`CategoryName`) AS Category, ROUND((SUM(`BottlesSold`) OVER(PARTITION BY  UPPER(`CategoryName`))/1000000), 2) AS  `Sold(mil)` FROM liquor WHERE UPPER(`VendorName`) = " + "'" + vendor3 + "' ORDER BY `Sold(mil)` DESC LIMIT 3")
         q5c.show(false)
     }
 
@@ -106,27 +106,27 @@ class Analyze   (){
         // Part 1/3
         // Show most expensive liquors per liter
         println("Most expensive liquors by volume:")
-        val mostExpensiveDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`Sale (Dollars)` / `Volume Sold (Liters)`) AS DECIMAL(10,2))" +
+        val mostExpensiveDF = sc.getSparkSession.sql("SELECT `ItemDescription` as `Item Description`, CAST(AVG(`Sale` / `VolumeSoldL`) AS DECIMAL(10,2))" +
             "AS `Price/Liter (Dollars)` FROM liquor GROUP BY `Item Description` ORDER BY `Price/Liter (Dollars)` DESC LIMIT 20")
         mostExpensiveDF.show(false)
 
         // Show least expensive liquors per liter
         println("Least expensive liquors by volume:")
-        val leastExpensiveDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`Sale (Dollars)` / `Volume Sold (Liters)`) AS DECIMAL(10,2))" +
+        val leastExpensiveDF = sc.getSparkSession.sql("SELECT `ItemDescription` as `Item Description`, CAST(AVG(`Sale` / `VolumeSoldL`) AS DECIMAL(10,2))" +
             "AS `Price/Liter (Dollars)` FROM liquor GROUP BY `Item Description` HAVING `Price/Liter (Dollars)` > 0 ORDER BY `Price/Liter (Dollars)` ASC LIMIT 10")
         leastExpensiveDF.show(false)
 
         // Part 2/3
         // Show liquors with highest volume sold
         println("Most popular liquor by volume sold:")
-        val mostPopularVolumeDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(SUM(`Volume Sold (Liters)`) / 1000000 AS DECIMAL(5,2)) AS `Liters Sold (mil)`" +
+        val mostPopularVolumeDF = sc.getSparkSession.sql("SELECT `ItemDescription` as `Item Description`, CAST(SUM(`VolumeSoldL`) / 1000000 AS DECIMAL(5,2)) AS `Liters Sold (mil)`" +
           "FROM liquor GROUP BY `Item Description` ORDER BY `Liters Sold (mil)` DESC LIMIT 10")
         mostPopularVolumeDF.show(false)
 
         // Part 3/3
         // Show liquors sold by total dollars spent
         println("Most popular liquor by dollars spent:")
-        val mostPopularDollarsDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(SUM(`Sale (Dollars)`) / 1000000 AS DECIMAL(5,2)) AS `Dollars (mil)`" +
+        val mostPopularDollarsDF = sc.getSparkSession.sql("SELECT `ItemDescription` as `Item Description`, CAST(SUM(`Sale`) / 1000000 AS DECIMAL(5,2)) AS `Dollars (mil)`" +
           "FROM liquor GROUP BY `Item Description` ORDER BY `Dollars (mil)` DESC LIMIT 10")
         mostPopularDollarsDF.show(false)
     }
@@ -136,13 +136,13 @@ class Analyze   (){
 
         // Show the top 5 most profitbale liquors by their average profit (bottle retail cost - bottle state cost)
         println("5 most profitable liquors (retail cost - state cost):")
-        val highestAvgDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`State Bottle Retail` - `State Bottle Cost`) AS DECIMAL(10,2))" +
+        val highestAvgDF = sc.getSparkSession.sql("SELECT `ItemDescription` as `Item Description`, CAST(AVG(`StateBottleRetail` - `StateBottleCost`) AS DECIMAL(10,2))" +
                                     " AS `Average Profit (Dollars)` FROM liquor GROUP BY `Item Description` ORDER BY `Average Profit (DOLLARS)` DESC LIMIT 5")
         highestAvgDF.show(false)
 
         // Show the top 5 least profitbale liquors by their average profit (bottle retail cost - bottle state cost)
         println("5 least profitable liquors (retail cost - state cost):")
-        val lowestAvgDF = sc.getSparkSession.sql("SELECT `Item Description`, CAST(AVG(`State Bottle Retail` - `State Bottle Cost`) AS DECIMAL(10,2))" +
+        val lowestAvgDF = sc.getSparkSession.sql("SELECT `ItemDescription` as `Item Description`, CAST(AVG(`StateBottleRetail` - `StateBottleCost`) AS DECIMAL(10,2))" +
                                     " AS `Average Profit (Dollars)` FROM liquor GROUP BY `Item Description` ORDER BY `Average Profit (Dollars)` ASC LIMIT 5")
         lowestAvgDF.show(false)
     }
@@ -165,7 +165,7 @@ class Analyze   (){
                 val spark = sc.getSparkSession()
                 val inputDF = sc.getDataFrame()
                 //Split Date into separate columns for year, month, and day. Also cast Sales and Volume to Double.
-                val modifiedDF = inputDF.withColumn("Year", year(to_date(col("Date"),"MM/dd/yyyy"))).withColumn("Month", month(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Day", dayofmonth(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Sales", col("Sale (Dollars)").cast(DoubleType)).withColumn("Volume", col("Volume Sold (Gallons)").cast(DoubleType))
+                val modifiedDF = inputDF.withColumn("Year", year(to_date(col("Date"),"MM/dd/yyyy"))).withColumn("Month", month(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Day", dayofmonth(to_date(col("Date"), "MM/dd/yyyy"))).withColumn("Sales", col("Sale").cast(DoubleType)).withColumn("Volume", col("VolumeSoldG").cast(DoubleType))
                 //Result for question 1 part 1, group by year+month, sum sales and volume. Sales in millions of dollars, volume in barrels (53gallons/barrel)
                 val q1DF = modifiedDF.groupBy($"Year", $"Month").agg(sum($"Sales")/1000000 as "Total Sales (mil)", sum($"Volume")/53 as "Total Volume (Barrels)").sort(col("Year"), col("Month")).withColumn("Total Sales (mil)", format_number($"Total Sales (mil)", 2)).withColumn("Total Volume (Barrels)", regexp_replace(format_number($"Total Volume (Barrels)", 2), ",", ""))
                 val preCovidDF = q1DF.filter("Year <= 2019 OR Year == 2020 AND Month < 3")
@@ -183,7 +183,7 @@ class Analyze   (){
         println("Preparing DF VIEW")
         val df1 = sc.getDataFrame()
         val df2 = df1.withColumn("Day of Week", date_format(to_date(col("Date"),"MM/dd/yyyy"),"E"))
-        val df3 = df2.groupBy("Day of Week").agg(sum("Volume Sold (liters)").as("total vol(L) sold"))
+        val df3 = df2.groupBy("Day of Week").agg(sum("VolumeSoldL").as("total vol(L) sold"))
         val df4 = df3.orderBy(col("total vol(L) sold").desc)
         //accumulating volume of liquor sold on each day
         println("Printing...")
